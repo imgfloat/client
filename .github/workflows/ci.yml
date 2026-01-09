@@ -21,6 +21,9 @@ jobs:
         with:
           node-version: 20
       - run: npm ci
+      - name: Fetch tags
+        run: git fetch --tags
+
       - name: Check version tag
         id: version_guard
         if: github.ref == 'refs/heads/master'
