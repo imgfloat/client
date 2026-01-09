@@ -12,8 +12,8 @@
     ],
     "publish": {
       "provider": "github",
-      "owner": "Kruhlmann",
-      "repo": "imgfloat-j"
+      "owner": "imgfloat",
+      "repo": "client"
     },
     "asar": false,
     "directories": {
