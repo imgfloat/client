@@ -1,0 +1,68 @@
+{
+  "name": "imgfloat-client",
+  "version": "1.0.1",
+  "description": "Electron wrapper for the Imgfloat overlay",
+  "main": "src/main.js",
+  "build": {
+    "appId": "dev.kruhlmann.imgfloat",
+    "productName": "Imgfloat",
+    "files": [
+      "src/main.js",
+      "res/**"
+    ],
+    "publish": {
+      "provider": "github",
+      "owner": "Kruhlmann",
+      "repo": "imgfloat-j"
+    },
+    "asar": false,
+    "directories": {
+      "output": "dist"
+    },
+    "linux": {
+      "target": [
+        "AppImage"
+      ],
+      "category": "Utility",
+      "icon": "res/icon/linux"
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "res/icon/appicon.ico"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": true,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Imgfloat",
+      "installerIcon": "res/icon/appicon.ico",
+      "uninstallerIcon": "res/icon/appicon.ico"
+    },
+    "mac": {
+      "category": "public.app-category.productivity",
+      "icon": "res/icon/macos.icns",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64"
+          ]
+        }
+      ]
+    }
+  },
+  "dependencies": {
+    "electron-updater": "^6.7.3"
+  },
+  "devDependencies": {
+    "electron": "^35.7.5",
+    "electron-builder": "^24.13.3",
+    "prettier": "^3.7.4",
+    "prettier-plugin-java": "^2.7.7"
+  }
+}

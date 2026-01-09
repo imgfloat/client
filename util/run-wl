@@ -1,0 +1,36 @@
+#!/usr/bin/env sh
+set -eu
+
+ELECTRON="$1"
+APP_ENTRY="src/main.js"
+SIZE="1280x800"
+
+cleanup() {
+    kill "$ELECTRON_PID" "$WESTON_PID" 2>/dev/null || true
+}
+trap cleanup EXIT INT TERM
+
+weston \
+    --backend=x11-backend.so \
+    --width="${SIZE%x*}" \
+    --height="${SIZE#*x}" \
+    --xwayland &
+WESTON_PID=$!
+
+# Wait for Weston to create its socket
+for i in $(seq 1 50); do
+    SOCKET=$(ls "$XDG_RUNTIME_DIR"/wayland-* 2>/dev/null | head -n1 || true)
+    [ -n "$SOCKET" ] && break
+    sleep 0.1
+done
+
+[ -n "${SOCKET:-}" ] || exit 1
+
+export WAYLAND_DISPLAY="$(basename "$SOCKET")"
+export ELECTRON_OZONE_PLATFORM_HINT=wayland
+export NIXOS_OZONE_WL=1
+
+"$ELECTRON" "$APP_ENTRY" &
+ELECTRON_PID=$!
+
+wait

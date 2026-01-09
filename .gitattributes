@@ -1,0 +1,12 @@
+res/icon/macos.icns filter=lfs diff=lfs merge=lfs -text
+res/banner.png filter=lfs diff=lfs merge=lfs -text
+res/icon/linux/128x128.png filter=lfs diff=lfs merge=lfs -text
+res/icon/linux/16x16.png filter=lfs diff=lfs merge=lfs -text
+res/icon/linux/256x256.png filter=lfs diff=lfs merge=lfs -text
+res/icon filter=lfs diff=lfs merge=lfs -text
+res/icon/appicon.ico filter=lfs diff=lfs merge=lfs -text
+res/icon/linux filter=lfs diff=lfs merge=lfs -text
+res/icon/linux/32x32.png filter=lfs diff=lfs merge=lfs -text
+res/icon/linux/48x48.png filter=lfs diff=lfs merge=lfs -text
+res/icon/linux/512x512.png filter=lfs diff=lfs merge=lfs -text
+res/icon/linux/64x64.png filter=lfs diff=lfs merge=lfs -text
