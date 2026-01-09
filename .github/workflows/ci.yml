@@ -12,39 +12,25 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
 
     runs-on: ${{ matrix.os }}
+
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           lfs: true
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+
       - run: npm ci
-      - name: Fetch tags
-        run: git fetch --tags
 
-      - name: Check version tag
-        id: version_guard
-        if: github.ref == 'refs/heads/master'
-        shell: bash
+      - name: Build (publish only on master)
         run: |
-          VERSION=$(node -p "require('./package.json').version")
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-
-          if git rev-parse "v$VERSION" >/dev/null 2>&1; then
-            echo "exists=true" >> $GITHUB_OUTPUT
+          if [ "${GITHUB_REF}" = "refs/heads/master" ]; then
+            npx electron-builder --publish=always
           else
-            echo "exists=false" >> $GITHUB_OUTPUT
+            npx electron-builder --publish=never
           fi
-      - name: Build (no publish)
-        if: github.ref != 'refs/heads/master'
-        run: npx electron-builder --publish=never
-      - name: Build & publish
-        if: github.ref == 'refs/heads/master' && steps.version_guard.outputs.exists == 'false'
-        run: npx electron-builder --publish=always
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Publish skipped
-        if: github.ref == 'refs/heads/master' && steps.version_guard.outputs.exists == 'true'
-        run: echo "Version already released — skipping publish"
