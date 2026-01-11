@@ -1,6 +1,6 @@
 {
   "name": "imgfloat-client",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Electron wrapper for the Imgfloat overlay",
   "main": "src/main.js",
   "build": {
@@ -28,10 +28,12 @@
     },
     "win": {
       "target": [
-        "nsis"
+        "nsis",
+        "portable"
       ],
       "icon": "res/icon/appicon.ico"
     },
+    "portable": { "artifactName": "Imgfloat.exe" },
     "nsis": {
       "oneClick": true,
       "perMachine": true,
