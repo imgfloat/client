@@ -1,94 +1,78 @@
 const path = require("node:path");
 
-const { app, BrowserWindow } = require("electron");
+const { app, BrowserWindow, ipcMain } = require("electron");
 const { autoUpdater } = require("electron-updater");
+const { readStore, writeStore } = require("./store.js");
 
-const initialWindowWidthPx = 960;
-const initialWindowHeightPx = 640;
+const STORE_PATH = path.join(app.getPath("userData"), "settings.json");
+const INITIAL_WINDOW_WIDTH_PX = 960;
+const INITIAL_WINDOW_HEIGHT_PX = 640;
 
-let canvasSizeInterval;
-function clearCanvasSizeInterval() {
-    if (canvasSizeInterval) {
-        clearInterval(canvasSizeInterval);
-        canvasSizeInterval = undefined;
-    }
-}
+let ELECTRON_WINDOW;
 
-async function autoResizeWindow(win, lastSize) {
-    if (win.isDestroyed()) {
-        return lastSize;
-    }
-    const newSize = await win.webContents.executeJavaScript(`(() => {
-        const canvas = document.getElementById('broadcast-canvas');
-        if (!canvas) {
-            return null;
-        }
-        const rect = canvas.getBoundingClientRect();
-        return {
-            width: Math.round(rect.width),
-            height: Math.round(rect.height),
-        };
-    })();`);
-
-    if (!newSize?.width || !newSize?.height) {
-        return lastSize;
-    }
-    if (lastSize.width === newSize.width && lastSize.height === newSize.height) {
-        return lastSize;
-    }
-    console.info(
-        `Window size did not match canvas old: ${lastSize.width}x${lastSize.height} new: ${newSize.width}x${newSize.height}. Resizing.`,
-    );
-    win.setContentSize(newSize.width, newSize.height, false);
-    win.setResizable(false);
-    return newSize;
-}
-
-function onPostNavigationLoad(win, url, broadcastRect) {
-    url = url || win.webContents.getURL();
-    let pathname;
-    try {
-        pathname = new URL(url).pathname;
-    } catch (e) {
-        console.error(`Failed to parse URL: ${url}`, e);
-        return;
-    }
-    const isBroadcast = /\/view\/[^/]+\/broadcast\/?$/.test(pathname);
-
-    console.info(`Navigation to ${url} detected. Is broadcast: ${isBroadcast}`);
-    if (isBroadcast) {
-        clearCanvasSizeInterval();
-        console.info("Setting up auto-resize for broadcast window.");
-        canvasSizeInterval = setInterval(() => {
-            autoResizeWindow(win, broadcastRect).then((newSize) => {
-                broadcastRect = newSize;
-            });
-        }, 750);
-        autoResizeWindow(win, broadcastRect).then((newSize) => {
-            broadcastRect = newSize;
-        });
-    } else {
-        clearCanvasSizeInterval();
-        win.setSize(initialWindowWidthPx, initialWindowHeightPx, false);
+function createWindowOptionsForPlatform(platform) {
+    switch (platform) {
+        case "darwin":
+        case "linux":
+            return {
+                width: INITIAL_WINDOW_WIDTH_PX,
+                height: INITIAL_WINDOW_HEIGHT_PX,
+                transparent: true,
+                frame: true,
+                backgroundColor: "#00000000",
+                alwaysOnTop: false,
+                icon: path.join(__dirname, "../res/icon/appicon.ico"),
+                webPreferences: {
+                    backgroundThrottling: false,
+                    preload: path.join(__dirname, "preload.js"),
+                },
+            };
+        case "win32":
+            return {
+                width: INITIAL_WINDOW_WIDTH_PX,
+                height: INITIAL_WINDOW_HEIGHT_PX,
+                transparent: true,
+                frame: false,
+                backgroundColor: "#00000000",
+                alwaysOnTop: false,
+                icon: path.join(__dirname, "../res/icon/appicon.ico"),
+                webPreferences: {
+                    backgroundThrottling: false,
+                    preload: path.join(__dirname, "preload.js"),
+                },
+            };
+        default:
+            throw new Error(`Unsupported platform: ${platform}`);
     }
 }
 
 function createWindow(version) {
-    const win = new BrowserWindow({
-        width: initialWindowWidthPx,
-        height: initialWindowHeightPx,
-        transparent: true,
-        frame: true,
-        backgroundColor: "#00000000",
-        alwaysOnTop: false,
-        icon: path.join(__dirname, "../resources/assets/icon/appicon.ico"),
-        webPreferences: { backgroundThrottling: false },
-    });
+    const windowOptions = createWindowOptionsForPlatform(process.platform);
+    const win = new BrowserWindow(windowOptions);
     win.setMenu(null);
     win.setTitle(`Imgfloat Client v${version}`);
 
     return win;
 }
+
+// TODO: Race condition?
+ipcMain.handle("set-window-size", (_, width, height) => {
+    if (ELECTRON_WINDOW && !ELECTRON_WINDOW.isDestroyed()) {
+        ELECTRON_WINDOW.setContentSize(width, height, false);
+    }
+});
+
+// TODO: Race condition?
+ipcMain.handle("save-broadcaster", (_, broadcaster) => {
+    const store = readStore(STORE_PATH);
+    store.lastBroadcaster = broadcaster;
+    writeStore(STORE_PATH, store);
+});
+
+ipcMain.handle("load-broadcaster", () => {
+    const store = readStore(STORE_PATH);
+    return store.lastBroadcaster ?? "";
+});
 
 app.whenReady().then(() => {
     if (process.env.CI) {
@@ -100,13 +84,12 @@ app.whenReady().then(() => {
     }
     autoUpdater.checkForUpdatesAndNotify();
 
-    let broadcastRect = { width: 0, height: 0 };
     const version = app.getVersion();
-    const win = createWindow(version);
-    win.loadURL(process.env["IMGFLOAT_CHANNELS_URL"] || "https://imgfloat.kruhlmann.dev/channels");
-    win.webContents.on("did-finish-load", () => onPostNavigationLoad(win, undefined, broadcastRect));
-    win.webContents.on("did-navigate", (_, url) => onPostNavigationLoad(win, url, broadcastRect));
-    win.webContents.on("did-navigate-in-page", (_, url) => onPostNavigationLoad(win, url, broadcastRect));
-    win.on("page-title-updated", (e) => e.preventDefault());
-    win.on("closed", clearCanvasSizeInterval);
+    ELECTRON_WINDOW = createWindow(version);
+    ELECTRON_WINDOW.loadFile(path.join(__dirname, "index.html"));
+    ELECTRON_WINDOW.on("page-title-updated", (e) => e.preventDefault());
+
+    if (process.env.DEVTOOLS) {
+        ELECTRON_WINDOW.webContents.openDevTools({ mode: "detach" });
+    }
 });
