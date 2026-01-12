@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>OBS Browser API Check</title>
+        <style>
+            body {
+                background: #111;
+                color: #eee;
+                font-family: monospace;
+                padding: 16px;
+            }
+            h1 {
+                color: #6cf;
+            }
+            .fail {
+                color: #f66;
+            }
+            .ok {
+                color: #6f6;
+            }
+            pre {
+                white-space: pre-wrap;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>OBS Browser Source – Missing API Report</h1>
+        <pre id="log"></pre>
+
+        <script>
+            const logEl = document.getElementById("log");
+
+            function log(line, cls = "") {
+                const span = document.createElement("div");
+                if (cls) span.className = cls;
+                span.textContent = line;
+                logEl.appendChild(span);
+            }
+
+            const apiChecks = {
+                "window.chrome": () => window.chrome,
+                "navigator.mediaDevices": () => navigator.mediaDevices,
+                "navigator.mediaDevices.getUserMedia": () => navigator.mediaDevices?.getUserMedia,
+                RTCPeerConnection: () => window.RTCPeerConnection,
+                WebSocket: () => window.WebSocket,
+                Notification: () => window.Notification,
+                PaymentRequest: () => window.PaymentRequest,
+                SharedArrayBuffer: () => SharedArrayBuffer,
+                ServiceWorker: () => navigator.serviceWorker,
+                "Clipboard API": () => navigator.clipboard,
+                WebGL2: () => {
+                    const c = document.createElement("canvas");
+                    return c.getContext("webgl2");
+                },
+                AudioWorklet: () => window.AudioWorklet,
+                "Gamepad API": () => navigator.getGamepads,
+                "Screen Orientation API": () => screen.orientation,
+                "Permissions API": () => navigator.permissions,
+                "File System Access API": () => window.showOpenFilePicker,
+                "WebRTC DataChannel": () => window.RTCPeerConnection && RTCPeerConnection.prototype.createDataChannel,
+                IndexedDB: () => window.indexedDB,
+                BroadcastChannel: () => window.BroadcastChannel,
+                "Web MIDI": () => navigator.requestMIDIAccess,
+            };
+
+            log("Running API availability check...\n");
+
+            let missing = 0;
+
+            for (const [name, test] of Object.entries(apiChecks)) {
+                let result;
+                try {
+                    result = test();
+                } catch (e) {
+                    result = undefined;
+                }
+
+                if (result === undefined || result === null) {
+                    log(`${name} → undefined / unavailable`, "fail");
+                    missing++;
+                } else {
+                    log(`${name} → OK`, "ok");
+                }
+            }
+
+            log(`\nSummary: ${missing} APIs missing or unavailable.`);
+        </script>
+    </body>
+</html>
