@@ -7,6 +7,22 @@ const { readStore, writeStore } = require("./store.js");
 const STORE_PATH = path.join(app.getPath("userData"), "settings.json");
 const INITIAL_WINDOW_WIDTH_PX = 960;
 const INITIAL_WINDOW_HEIGHT_PX = 640;
+const LOCAL_DOMAIN = "http://localhost:8080";
+const DEFAULT_DOMAIN = "https://imgfloat.kruhlmann.dev";
+
+function normalizeDomain(domain) {
+    return domain?.trim()?.replace(/\/+$/, "");
+}
+
+function resolveDefaultDomain() {
+    if (process.env.DEVTOOLS || process.env.LOCAL_DOMAIN) {
+        return normalizeDomain(LOCAL_DOMAIN);
+    }
+    const buildTimeDomain = process.env.IMGFLOAT_DOMAIN || DEFAULT_DOMAIN;
+    return normalizeDomain(buildTimeDomain);
+}
+
+const runtimeDefaultDomain = resolveDefaultDomain();
 
 let ELECTRON_WINDOW;
 
@@ -73,6 +89,19 @@ ipcMain.handle("load-broadcaster", () => {
     const store = readStore(STORE_PATH);
     return store.lastBroadcaster ?? "";
 });
+
+ipcMain.handle("save-domain", (_, domain) => {
+    const store = readStore(STORE_PATH);
+    store.lastDomain = normalizeDomain(domain);
+    writeStore(STORE_PATH, store);
+});
+
+ipcMain.handle("load-domain", () => {
+    const store = readStore(STORE_PATH);
+    return normalizeDomain(store.lastDomain) || runtimeDefaultDomain;
+});
+
+ipcMain.handle("load-default-domain", () => runtimeDefaultDomain);
 
 app.whenReady().then(() => {
     if (process.env.CI) {

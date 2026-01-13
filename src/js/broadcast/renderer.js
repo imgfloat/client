@@ -62,7 +62,7 @@ export class BroadcastRenderer {
                 const body = JSON.parse(payload.body);
                 this.handleEvent(body);
             });
-            fetch(`https://imgfloat.kruhlmann.dev/api/channels/${this.broadcaster}/assets`)
+            fetch(`${this.domain}/api/channels/${this.broadcaster}/assets`)
                 .then((r) => {
                     if (!r.ok) {
                         throw new Error("Failed to load assets");
@@ -121,7 +121,7 @@ export class BroadcastRenderer {
     }
 
     async fetchCanvasSettings() {
-        return fetch(`https://imgfloat.kruhlmann.dev/api/channels/${encodeURIComponent(this.broadcaster)}/canvas`)
+        return fetch(`${this.domain}/api/channels/${encodeURIComponent(this.broadcaster)}/canvas`)
             .then((r) => {
                 if (!r.ok) {
                     throw new Error("Failed to load canvas");

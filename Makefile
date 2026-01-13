@@ -15,17 +15,16 @@ node_modules: package-lock.json
 
 .PHONY: run
 run:
-	$(ELECTRON) src/main.js
+	LOCAL_DOMAIN=1 $(ELECTRON) src/main.js
 
 .PHONY: run-x
 run-x:
-	./util/run-xorg $(ELECTRON)
+	LOCAL_DOMAIN=1 ./util/run-xorg $(ELECTRON)
 
 .PHONY: run-wl
 run-wl:
-	./util/run-wl $(ELECTRON)
+	LOCAL_DOMAIN=1 ./util/run-wl $(ELECTRON)
 
 .PHONY: fix
 fix: node_modules
 	./node_modules/.bin/prettier --write src
-

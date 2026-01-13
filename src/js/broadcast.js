@@ -2,7 +2,11 @@ import { BroadcastRenderer } from "./broadcast/renderer.js";
 import { saveSelectedBroadcaster } from "./ipc.js";
 import { showToast } from "./toast.js";
 
-const domain = "https://imgfloat.kruhlmann.dev";
+const normalizeDomain = (value) => value?.trim()?.replace(/\/+$/, "");
+const domainParam = new URL(window.location.href).searchParams.get("domain");
+const defaultDomain = await window.store.loadDefaultDomain();
+const savedDomain = await window.store.loadDomain();
+const domain = normalizeDomain(domainParam || savedDomain || defaultDomain);
 
 globalThis.onerror = (error, url, line) => {
     console.error(error);
@@ -16,6 +20,9 @@ globalThis.onunhandledrejection = (error) => {
 const broadcaster = new URL(window.location.href).searchParams.get("broadcaster");
 if (!broadcaster) {
     throw new Error("No broadcaster");
+}
+if (!domain) {
+    throw new Error("No domain configured");
 }
 saveSelectedBroadcaster(broadcaster);
 

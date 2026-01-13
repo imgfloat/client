@@ -9,7 +9,7 @@
         <div class="channels-shell">
             <header class="channels-header">
                 <div class="brand">
-                    <img class="brand-mark" alt="brand" src="https://imgfloat.kruhlmann.dev/img/brand.png" />
+                    <img class="brand-mark" alt="brand" src="../res/icon/brand.png" />
                     <div>
                         <div class="brand-title">Imgfloat</div>
                         <div class="brand-subtitle">Twitch overlay manager</div>
@@ -35,6 +35,15 @@
                             autofocus
                             spellcheck="false"
                         />
+                        <label class="sr-only" for="domain-input">Server domain</label>
+                        <input
+                            id="domain-input"
+                            name="domain"
+                            class="text-input"
+                            type="url"
+                            autocomplete="off"
+                            spellcheck="false"
+                        />
                         <datalist id="channel-suggestions"></datalist>
                         <button type="submit" class="button block">Open overlay</button>
                     </form>
@@ -44,6 +53,7 @@
         <script>
             const form = document.getElementById("channel-search-form");
             const input = document.getElementById("channel-search");
+            const domainInput = document.getElementById("domain-input");
 
             window.store.loadBroadcaster().then((value) => {
                 if (value && input.value === "") {
@@ -51,13 +61,35 @@
                 }
             });
 
+            Promise.all([window.store.loadDomain(), window.store.loadDefaultDomain()]).then(
+                ([savedDomain, defaultDomain]) => {
+                    domainInput.value = savedDomain || defaultDomain;
+                    domainInput.placeholder = defaultDomain;
+                },
+            );
+
+            domainInput.addEventListener("change", () => {
+                const trimmedDomain = domainInput.value.trim();
+                if (trimmedDomain) {
+                    window.store.saveDomain(trimmedDomain);
+                }
+            });
+
             form.addEventListener("submit", (e) => {
                 e.preventDefault();
 
                 const channel = input.value.trim();
+                const fallbackDomain = domainInput.placeholder || "";
+                const domain = domainInput.value.trim() || fallbackDomain;
                 if (!channel) return;
 
+                if (domain) {
+                    window.store.saveDomain(domain);
+                }
                 const params = new URLSearchParams({ broadcaster: channel });
+                if (domain) {
+                    params.set("domain", domain);
+                }
                 window.location.href = `broadcast.html?${params.toString()}`;
             });
         </script>

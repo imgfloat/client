@@ -7,7 +7,7 @@
     "appId": "dev.kruhlmann.imgfloat",
     "productName": "Imgfloat",
     "files": [
-      "src/main.js",
+      "src/**",
       "res/**"
     ],
     "publish": {
