@@ -9,6 +9,8 @@ const INITIAL_WINDOW_WIDTH_PX = 960;
 const INITIAL_WINDOW_HEIGHT_PX = 640;
 const LOCAL_DOMAIN = "http://localhost:8080";
 const DEFAULT_DOMAIN = "https://imgfloat.kruhlmann.dev";
+const RUNTIME_DOMAIN = resolveDefaultDomain();
+let ELECTRON_WINDOW;
 
 function normalizeDomain(domain) {
     return domain?.trim()?.replace(/\/+$/, "");
@@ -21,10 +23,6 @@ function resolveDefaultDomain() {
     const buildTimeDomain = process.env.IMGFLOAT_DOMAIN || DEFAULT_DOMAIN;
     return normalizeDomain(buildTimeDomain);
 }
-
-const runtimeDefaultDomain = resolveDefaultDomain();
-
-let ELECTRON_WINDOW;
 
 function createWindowOptionsForPlatform(platform) {
     switch (platform) {
@@ -66,6 +64,9 @@ function createWindow(version) {
     const windowOptions = createWindowOptionsForPlatform(process.platform);
     const win = new BrowserWindow(windowOptions);
     win.setMenu(null);
+    win.setFullScreenable(false)
+    win.setFullScreen(false)
+    win.setResizable(false)
     win.setTitle(`Imgfloat Client v${version}`);
 
     return win;
@@ -96,10 +97,10 @@ ipcMain.handle("save-domain", (_, domain) => {
 
 ipcMain.handle("load-domain", () => {
     const store = readStore(STORE_PATH);
-    return normalizeDomain(store.lastDomain) || runtimeDefaultDomain;
+    return normalizeDomain(store.lastDomain) || RUNTIME_DOMAIN;
 });
 
-ipcMain.handle("load-default-domain", () => runtimeDefaultDomain);
+ipcMain.handle("load-default-domain", () => RUNTIME_DOMAIN);
 
 app.whenReady().then(() => {
     if (process.env.CI) {
