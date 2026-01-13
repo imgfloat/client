@@ -81,16 +81,13 @@
                 const channel = input.value.trim();
                 const fallbackDomain = domainInput.placeholder || "";
                 const domain = domainInput.value.trim() || fallbackDomain;
-                if (!channel) return;
+                if (!channel) {
+                    return
+                };
 
-                if (domain) {
-                    window.store.saveDomain(domain);
-                }
                 const params = new URLSearchParams({ broadcaster: channel });
-                if (domain) {
-                    params.set("domain", domain);
-                }
-                window.location.href = `broadcast.html?${params.toString()}`;
+                window.store.saveDomain(domain);
+                window.location.href = `${domain}/view/${encodeURIComponent(channel)}/broadcast`;
             });
         </script>
     </body>
