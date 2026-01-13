@@ -15,7 +15,7 @@ function normalizeDomain(domain) {
 }
 
 function resolveDefaultDomain() {
-    if (process.env.DEVTOOLS || process.env.LOCAL_DOMAIN) {
+    if (process.env.LOCAL_DOMAIN) {
         return normalizeDomain(LOCAL_DOMAIN);
     }
     const buildTimeDomain = process.env.IMGFLOAT_DOMAIN || DEFAULT_DOMAIN;
@@ -71,14 +71,12 @@ function createWindow(version) {
     return win;
 }
 
-// TODO: Race condition?
 ipcMain.handle("set-window-size", (_, width, height) => {
     if (ELECTRON_WINDOW && !ELECTRON_WINDOW.isDestroyed()) {
         ELECTRON_WINDOW.setContentSize(width, height, false);
     }
 });
 
-// TODO: Race condition?
 ipcMain.handle("save-broadcaster", (_, broadcaster) => {
     const store = readStore(STORE_PATH);
     store.lastBroadcaster = broadcaster;
