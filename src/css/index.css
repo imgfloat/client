@@ -5,6 +5,7 @@
 
 :root {
     --window-frame-height: 36px;
+    --window-control-size: 28px;
 }
 
 p {
@@ -64,15 +65,17 @@ body {
 }
 
 .window-control {
-    width: 30px;
-    height: 24px;
+    width: var(--window-control-size);
+    height: var(--window-control-size);
     padding: 0;
     border-radius: 6px;
     background: rgba(148, 163, 184, 0.2);
     border: 1px solid rgba(148, 163, 184, 0.25);
     color: #e2e8f0;
-    font-size: 16px;
+    font-size: 14px;
     line-height: 1;
+    display: grid;
+    place-items: center;
     box-shadow: none;
 }
 

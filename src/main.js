@@ -70,6 +70,16 @@ ipcMain.handle("close-window", () => {
     }
 });
 
+ipcMain.handle("toggle-devtools", () => {
+    if (ELECTRON_WINDOW && !ELECTRON_WINDOW.isDestroyed()) {
+        if (ELECTRON_WINDOW.webContents.isDevToolsOpened()) {
+            ELECTRON_WINDOW.webContents.closeDevTools();
+        } else {
+            ELECTRON_WINDOW.webContents.openDevTools({ mode: "detach" });
+        }
+    }
+});
+
 ipcMain.handle("save-broadcaster", (_, broadcaster) => {
     const store = readStore(STORE_PATH);
     store.lastBroadcaster = broadcaster;
