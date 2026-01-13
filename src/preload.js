@@ -7,4 +7,6 @@ contextBridge.exposeInMainWorld("store", {
     loadDomain: () => ipcRenderer.invoke("load-domain"),
     loadDefaultDomain: () => ipcRenderer.invoke("load-default-domain"),
     setWindowSize: (width, height) => ipcRenderer.invoke("set-window-size", width, height),
+    minimizeWindow: () => ipcRenderer.invoke("minimize-window"),
+    closeWindow: () => ipcRenderer.invoke("close-window"),
 });

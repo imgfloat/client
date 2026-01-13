@@ -24,49 +24,29 @@ function resolveDefaultDomain() {
     return normalizeDomain(buildTimeDomain);
 }
 
-function createWindowOptionsForPlatform(platform) {
-    switch (platform) {
-        case "darwin":
-        case "linux":
-            return {
-                width: INITIAL_WINDOW_WIDTH_PX,
-                height: INITIAL_WINDOW_HEIGHT_PX,
-                transparent: true,
-                frame: true,
-                backgroundColor: "#00000000",
-                alwaysOnTop: false,
-                icon: path.join(__dirname, "../res/icon/appicon.ico"),
-                webPreferences: {
-                    backgroundThrottling: false,
-                    preload: path.join(__dirname, "preload.js"),
-                },
-            };
-        case "win32":
-            return {
-                width: INITIAL_WINDOW_WIDTH_PX,
-                height: INITIAL_WINDOW_HEIGHT_PX,
-                transparent: true,
-                frame: false,
-                backgroundColor: "#00000000",
-                alwaysOnTop: false,
-                icon: path.join(__dirname, "../res/icon/appicon.ico"),
-                webPreferences: {
-                    backgroundThrottling: false,
-                    preload: path.join(__dirname, "preload.js"),
-                },
-            };
-        default:
-            throw new Error(`Unsupported platform: ${platform}`);
-    }
+function createWindowOptions() {
+    return {
+        width: INITIAL_WINDOW_WIDTH_PX,
+        height: INITIAL_WINDOW_HEIGHT_PX,
+        transparent: true,
+        frame: false,
+        backgroundColor: "#00000000",
+        alwaysOnTop: false,
+        icon: path.join(__dirname, "../res/icon/appicon.ico"),
+        webPreferences: {
+            backgroundThrottling: false,
+            preload: path.join(__dirname, "preload.js"),
+        },
+    };
 }
 
 function createWindow(version) {
-    const windowOptions = createWindowOptionsForPlatform(process.platform);
+    const windowOptions = createWindowOptions();
     const win = new BrowserWindow(windowOptions);
     win.setMenu(null);
-    win.setFullScreenable(false)
-    win.setFullScreen(false)
-    win.setResizable(false)
+    win.setFullScreenable(false);
+    win.setFullScreen(false);
+    win.setResizable(false);
     win.setTitle(`Imgfloat Client v${version}`);
 
     return win;
@@ -75,6 +55,18 @@ function createWindow(version) {
 ipcMain.handle("set-window-size", (_, width, height) => {
     if (ELECTRON_WINDOW && !ELECTRON_WINDOW.isDestroyed()) {
         ELECTRON_WINDOW.setContentSize(width, height, false);
+    }
+});
+
+ipcMain.handle("minimize-window", () => {
+    if (ELECTRON_WINDOW && !ELECTRON_WINDOW.isDestroyed()) {
+        ELECTRON_WINDOW.minimize();
+    }
+});
+
+ipcMain.handle("close-window", () => {
+    if (ELECTRON_WINDOW && !ELECTRON_WINDOW.isDestroyed()) {
+        ELECTRON_WINDOW.close();
     }
 });
 

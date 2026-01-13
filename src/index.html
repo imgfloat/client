@@ -6,6 +6,22 @@
         <link rel="stylesheet" href="./css/index.css" />
     </head>
     <body class="channels-body">
+        <div class="window-frame" role="presentation">
+            <div class="window-frame-title">Imgfloat</div>
+            <div class="window-frame-controls">
+                <button class="window-control" type="button" data-window-action="minimize" aria-label="Minimize">
+                    &minus;
+                </button>
+                <button
+                    class="window-control window-control-close"
+                    type="button"
+                    data-window-action="close"
+                    aria-label="Close"
+                >
+                    &times;
+                </button>
+            </div>
+        </div>
         <div class="channels-shell">
             <header class="channels-header">
                 <div class="brand">
@@ -54,6 +70,7 @@
             const form = document.getElementById("channel-search-form");
             const input = document.getElementById("channel-search");
             const domainInput = document.getElementById("domain-input");
+            const windowActionButtons = document.querySelectorAll("[data-window-action]");
 
             window.store.loadBroadcaster().then((value) => {
                 if (value && input.value === "") {
@@ -82,12 +99,24 @@
                 const fallbackDomain = domainInput.placeholder || "";
                 const domain = domainInput.value.trim() || fallbackDomain;
                 if (!channel) {
-                    return
-                };
+                    return;
+                }
 
                 const params = new URLSearchParams({ broadcaster: channel });
                 window.store.saveDomain(domain);
                 window.location.href = `${domain}/view/${encodeURIComponent(channel)}/broadcast`;
+            });
+
+            windowActionButtons.forEach((button) => {
+                button.addEventListener("click", () => {
+                    const action = button.dataset.windowAction;
+                    if (action === "minimize") {
+                        window.store.minimizeWindow();
+                    }
+                    if (action === "close") {
+                        window.store.closeWindow();
+                    }
+                });
             });
         </script>
     </body>
