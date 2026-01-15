@@ -32,7 +32,7 @@ function createWindowOptions() {
         frame: false,
         backgroundColor: "#00000000",
         alwaysOnTop: false,
-        icon: path.join(__dirname, "../res/icon/appicon.ico"),
+        icon: path.join(__dirname, "../res/icon/brand.png"),
         webPreferences: {
             backgroundThrottling: false,
             preload: path.join(__dirname, "preload.js"),

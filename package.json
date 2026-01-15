@@ -1,6 +1,6 @@
 {
   "name": "imgfloat-client",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Electron wrapper for the Imgfloat overlay",
   "main": "src/main.js",
   "build": {
