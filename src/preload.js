@@ -9,4 +9,5 @@ contextBridge.exposeInMainWorld("store", {
     setWindowSize: (width, height) => ipcRenderer.invoke("set-window-size", width, height),
     minimizeWindow: () => ipcRenderer.invoke("minimize-window"),
     closeWindow: () => ipcRenderer.invoke("close-window"),
+    toggleDevTools: () => ipcRenderer.invoke("toggle-devtools"),
 });

@@ -12,6 +12,9 @@
                 <button class="window-control" type="button" data-window-action="minimize" aria-label="Minimize">
                     &minus;
                 </button>
+                <button class="window-control" type="button" data-window-action="devtools" aria-label="Toggle dev tools">
+                    &#9881;
+                </button>
                 <button
                     class="window-control window-control-close"
                     type="button"
@@ -112,6 +115,9 @@
                     const action = button.dataset.windowAction;
                     if (action === "minimize") {
                         window.store.minimizeWindow();
+                    }
+                    if (action === "devtools") {
+                        window.store.toggleDevTools();
                     }
                     if (action === "close") {
                         window.store.closeWindow();
