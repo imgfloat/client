@@ -8,7 +8,7 @@ const STORE_PATH = path.join(app.getPath("userData"), "settings.json");
 const INITIAL_WINDOW_WIDTH_PX = 960;
 const INITIAL_WINDOW_HEIGHT_PX = 640;
 const LOCAL_DOMAIN = "http://localhost:8080";
-const DEFAULT_DOMAIN = "https://imgfloat.kruhlmann.dev";
+const DEFAULT_DOMAIN = "https://imgflo.at";
 const RUNTIME_DOMAIN = resolveDefaultDomain();
 let ELECTRON_WINDOW;
 
